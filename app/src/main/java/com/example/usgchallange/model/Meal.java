@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Meal {
+
+
     @SerializedName("idMeal")
     @Expose
     private String id;

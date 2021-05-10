@@ -17,6 +17,12 @@ import com.example.usgchallange.retrofit.RetrofitService;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,7 +35,7 @@ public class MealRepository {
     MutableLiveData<List<Category>> listOfCategories;
     MutableLiveData<List<Meal>> listOfMealByArea;
     MutableLiveData<List<Meal>> listOfMealByCategory;
-
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     public static MealRepository getInstance(){
         if(mealRepository == null)
@@ -45,65 +51,113 @@ public class MealRepository {
     }
 
     public void searchAreaList(){
-        mealService.getMealList("list").enqueue(new Callback<ListResponse>() {
-            @Override
-            public void onResponse(Call<ListResponse> call, Response<ListResponse> response) {
-                if(response.body() != null){
-                    listOfMeals.postValue(response.body().getListOfMeal());
-                }
-            }
+        mealService.getMealList("list")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ListResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        disposable.add(d);
+                    }
 
-            @Override
-            public void onFailure(Call<ListResponse> call, Throwable t) {
-                Log.e("Tag","asd");
-                listOfMeals.postValue(null);
-            }
-        });
+                    @Override
+                    public void onNext(ListResponse listResponse) {
+                        ArrayList<MealList> mealLists = listResponse.getListOfMeal();
+                        listOfMeals.postValue(mealLists);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listOfMeals.postValue(null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
     }
     public void fetchTheCategories(){
-        mealService.getCategories().enqueue(new Callback<CategoryResponse>() {
-            @Override
-            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
-                if(response.body() != null){
-                    listOfCategories.postValue(response.body().getCategories());
-                }
-            }
+        mealService.getCategories()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<CategoryResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-            @Override
-            public void onFailure(Call<CategoryResponse> call, Throwable t) {
-                listOfCategories.postValue(null);
-            }
-        });
+                    }
+
+                    @Override
+                    public void onNext(CategoryResponse categoryResponse) {
+                        ArrayList<Category> categories = categoryResponse.getCategories();
+                        listOfCategories.postValue(categories);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listOfCategories.postValue(null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
     public void fetchMealsByArea(String area){
-        mealService.getMealsByArea(area).enqueue(new Callback<MealResponse>() {
-            @Override
-            public void onResponse(Call<MealResponse> call, Response<MealResponse> response) {
-                if(response.body() != null){
-                    listOfMealByArea.postValue(response.body().getMeals());
-                }
-            }
+        mealService.getMealsByArea(area)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MealResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-            @Override
-            public void onFailure(Call<MealResponse> call, Throwable t) {
-                listOfMealByArea.postValue(null);
-            }
-        });
+                    }
+
+                    @Override
+                    public void onNext(MealResponse mealResponse) {
+                        ArrayList<Meal> meals = mealResponse.getMeals();
+                        listOfMealByArea.postValue(meals);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listOfMealByArea.postValue(null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
     public void fetchMealsByCategory(String category){
-        mealService.getMealsByCategory(category).enqueue(new Callback<MealResponse>() {
-            @Override
-            public void onResponse(Call<MealResponse> call, Response<MealResponse> response) {
-                if(response.body() != null){
-                    listOfMealByCategory.postValue(response.body().getMeals());
-                }
-            }
+        mealService.getMealsByCategory(category)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MealResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-            @Override
-            public void onFailure(Call<MealResponse> call, Throwable t) {
-                listOfMealByCategory.postValue(null);
-            }
-        });
+                    }
+
+                    @Override
+                    public void onNext(MealResponse mealResponse) {
+                        ArrayList<Meal> meals = mealResponse.getMeals();
+                        listOfMealByCategory.postValue(meals);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listOfMealByCategory.postValue(null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
 

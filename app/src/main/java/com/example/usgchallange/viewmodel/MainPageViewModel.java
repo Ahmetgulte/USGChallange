@@ -14,6 +14,8 @@ import com.example.usgchallange.repository.MealRepository;
 
 import java.util.List;
 
+
+
 public class MainPageViewModel extends AndroidViewModel {
     private MealRepository mealRepository;
     private MutableLiveData<List<MealList>> areas = new MutableLiveData<>();
@@ -40,4 +42,6 @@ public class MainPageViewModel extends AndroidViewModel {
     public void fetchTheCategories(){
         mealRepository.fetchTheCategories();
     }
+
+
 }
